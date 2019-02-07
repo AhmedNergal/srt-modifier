@@ -12,12 +12,15 @@ ender_timestamp_lines = []      # List of all lines ending timestamps
 
 def srt_line_parser(lines):
     try:
-        for line in lines:
-            numbers.append(line.split("\n")[0])
-            timestamps.append(line.split("\n")[1])
-            content.append(line.split("\n")[2:])
+        for i in range(len(lines)):
+            if len(lines[i].split("\n")) >= 3:
+                numbers.append(lines[i].split("\n")[0])
+                timestamps.append(lines[i].split("\n")[1])
+                content.append(lines[i].split("\n")[2:])
+            else:
+                content[content.index(content[i - 1])].append(lines[i].split("\n")[0])
     except IndexError:
-        pass
+        print("Error Happened Internally")
 
     try:
         for i in range(len(numbers)):
@@ -149,13 +152,18 @@ def timestamp_formatter(shifted_timestamps):
 def output_srt_file_creator(lines):
     try:
         for i in range(len(lines)):
-                modified_srt_file.write(lines[i].split("\n")[0] + "\n")
+                modified_srt_file.write(numbers[i].split("\n")[0] + "\n")
                 modified_srt_file.write(starter_timestamp_lines[i])
                 modified_srt_file.write(ender_timestamp_lines[i])
                 for sub_line in content[i]:
-                    modified_srt_file.write(sub_line)
+                    if type(sub_line) == str:
+                        modified_srt_file.write(sub_line)
+                        modified_srt_file.write("\n")
+                    elif type(sub_line) == list:
+                        for item in sub_line:
+                            modified_srt_file.write(item)
                     modified_srt_file.write("\n")
-                modified_srt_file.write("\n")
+
     except IndexError:
         pass
 
@@ -166,8 +174,9 @@ file_name = input("Enter File Name: ")
 shift_direction = input("Shift Direction (Enter \"F\" or \"f\" for forward shifting or enter \"B\" or \"b\" for backward shifting: ")
 shift_value = float(input("Enter shift value in seconds.millisecions format: "))
 
+
 try:
-    if file_name.split(".")[1] == "srt":
+    if file_name[(len(file_name) - 3):] == "srt":
         srt_file = open(file_name, "r").read()
         modified_srt_file = open(file_name.split(".")[0] + " modified.srt", "w")
         lines = srt_file.split("\n\n")
@@ -183,6 +192,7 @@ try:
 
         timestamp_formatter(shifted_timestamps)
         output_srt_file_creator(lines)
+        print(numbers)
     else:
         print("Format Doesn't Match .srt")
 except FileNotFoundError:
