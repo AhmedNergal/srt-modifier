@@ -159,10 +159,8 @@ def output_srt_file_creator(lines):
                     if type(sub_line) == str:
                         modified_srt_file.write(sub_line)
                         modified_srt_file.write("\n")
-                    elif type(sub_line) == list:
-                        for item in sub_line:
-                            modified_srt_file.write(item)
-                    modified_srt_file.write("\n")
+                        print("Ho")
+                modified_srt_file.write("\n")
 
     except IndexError:
         pass
